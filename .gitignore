@@ -1,0 +1,9 @@
+.env
+*.env.local
+service-account*.json
+__pycache__/
+.venv/
+.pytest_cache/
+node_modules/
+.next/
+.npm-cache/
