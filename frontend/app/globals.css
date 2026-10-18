@@ -28,7 +28,9 @@
   --font-mono: var(--font-geist-mono);
 }
 
+html,
 body {
+  min-width: 1280px;
   background: var(--canvas);
   color: var(--ink);
 }

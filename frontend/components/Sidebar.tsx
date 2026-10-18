@@ -39,7 +39,7 @@ export function Sidebar() {
   const info = useIntegrations();
 
   return (
-    <aside className="flex w-full shrink-0 flex-col border-b border-line bg-surface md:sticky md:top-0 md:h-screen md:w-64 md:border-r md:border-b-0">
+    <aside className="sticky top-0 flex h-screen w-64 shrink-0 flex-col border-r border-line bg-surface">
       <div className="flex items-center gap-2.5 px-5 py-5">
         <div className="grid size-9 place-items-center rounded-lg bg-brand text-white">
           <Building2 className="size-5" />
@@ -50,7 +50,7 @@ export function Sidebar() {
         </div>
       </div>
 
-      <nav className="flex gap-1 overflow-x-auto px-3 pb-3 md:flex-col md:overflow-visible">
+      <nav className="flex flex-col gap-1 px-3 pb-3">
         {NAV.map(({ href, label, icon: Icon }) => {
           const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
           return (
@@ -58,7 +58,7 @@ export function Sidebar() {
               key={href}
               href={href}
               className={cx(
-                "flex shrink-0 items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                 active ? "bg-brand-soft text-brand-strong" : "text-muted hover:bg-subtle hover:text-ink",
               )}
             >
@@ -69,7 +69,7 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="mt-auto hidden space-y-3 border-t border-line px-5 py-4 md:block">
+      <div className="mt-auto space-y-3 border-t border-line px-5 py-4">
         {info?.bot_username && (
           <a
             href={`https://t.me/${info.bot_username}`}
