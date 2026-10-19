@@ -6,11 +6,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PORT=8080
 
 WORKDIR /app
-COPY requirements.txt .
+COPY requirements.txt keys.csv* ./
 RUN pip install -r requirements.txt
 
 COPY app ./app
-COPY keys*.csv ./
 
 RUN useradd --create-home appuser
 USER appuser

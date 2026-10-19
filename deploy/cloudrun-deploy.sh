@@ -10,11 +10,6 @@ SERVICE="${SERVICE:-proppulse-api}"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 ENV_FILE="${ENV_FILE:-$ROOT/backend/.env}"
 
-# Ensure keys.csv is available in backend/ for container build
-if [ -f "$ROOT/keys.csv" ]; then
-  cp -f "$ROOT/keys.csv" "$ROOT/backend/keys.csv"
-fi
-
 gcloud config set project "$PROJECT_ID" >/dev/null
 gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com cloudscheduler.googleapis.com calendar-json.googleapis.com
 
@@ -39,6 +34,11 @@ with open(out, "w") as fh:
     for key, value in values.items():
         fh.write(f"{key}: {json.dumps(value)}\n")
 PY
+
+# Ensure keys.csv is packaged into backend build context
+if [ -f "$ROOT/keys.csv" ] && [ ! -f "$ROOT/backend/keys.csv" ]; then
+  cp "$ROOT/keys.csv" "$ROOT/backend/keys.csv"
+fi
 
 gcloud run deploy "$SERVICE" \
   --source "$ROOT/backend" \
