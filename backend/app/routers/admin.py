@@ -33,8 +33,10 @@ def integrations() -> dict:
             bot_username = services.telegram.bot_username
         except Exception:
             status["telegram"] = False
+    gemini_keys = getattr(services.gemini, "status", None)
     return {
         "integrations": status,
+        "gemini_keys": gemini_keys,
         "bot_username": bot_username,
         "channel_id": services.settings.telegram_channel_id or None,
         "channel_link": "https://t.me/+3N90TiMJ79M2NTU0",

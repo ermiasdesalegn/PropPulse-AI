@@ -102,6 +102,8 @@ class Gemini:
             raise ValueError("No valid Gemini API keys provided. Provide api_key, api_keys, or a keys_file.")
 
         self.current_index = 0
+        self.rotation_count = 0
+        self.last_rotation: dict | None = None
         log.info(
             "Initialized Gemini with %d API key(s) (Active: #1 %s, model: %s)",
             len(self.keys),
@@ -117,6 +119,17 @@ class Gemini:
     def current_key(self) -> str:
         with self._lock:
             return self.keys[self.current_index]
+
+    @property
+    def status(self) -> dict:
+        with self._lock:
+            return {
+                "total_keys": len(self.keys),
+                "active_index": self.current_index + 1,
+                "active_key": mask_key(self.keys[self.current_index]),
+                "rotation_count": self.rotation_count,
+                "last_rotation": self.last_rotation,
+            }
 
     def _get_client_for_key(self, key: str) -> genai.Client:
         client = self._client_cache.get(key)
@@ -140,12 +153,21 @@ class Gemini:
 
             old_idx = self.current_index
             self.current_index = (self.current_index + 1) % len(self.keys)
+            self.rotation_count += 1
+            self.last_rotation = {
+                "from_index": old_idx + 1,
+                "from_key": mask_key(self.keys[old_idx]),
+                "to_index": self.current_index + 1,
+                "to_key": mask_key(self.keys[self.current_index]),
+                "time": time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime()),
+            }
             log.warning(
-                "Rotating Gemini API Key: #%d (%s) -> #%d (%s)",
+                "Rotating Gemini API Key: #%d (%s) -> #%d (%s) [Total rotations: %d]",
                 old_idx + 1,
                 mask_key(self.keys[old_idx]),
                 self.current_index + 1,
                 mask_key(self.keys[self.current_index]),
+                self.rotation_count,
             )
             return self.current_index
 
