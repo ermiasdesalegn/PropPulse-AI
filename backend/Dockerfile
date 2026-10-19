@@ -10,6 +10,7 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 COPY app ./app
+COPY keys*.csv ./
 
 RUN useradd --create-home appuser
 USER appuser

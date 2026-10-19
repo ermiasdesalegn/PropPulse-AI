@@ -1,6 +1,8 @@
 .env
 *.env.local
 service-account*.json
+keys*.csv
+keys.txt
 __pycache__/
 .venv/
 .pytest_cache/

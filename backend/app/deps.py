@@ -37,8 +37,10 @@ class Services:
 
     @cached_property
     def gemini(self) -> Gemini:
-        _require(self.settings, "gemini_api_key")
-        return Gemini(self.settings.gemini_api_key, self.settings.gemini_model)
+        keys = self.settings.get_gemini_api_keys()
+        if not keys:
+            _require(self.settings, "gemini_api_key")
+        return Gemini(api_keys=keys, model=self.settings.gemini_model)
 
     @cached_property
     def telegram(self) -> Telegram:
@@ -57,8 +59,9 @@ class Services:
 
     def integration_status(self) -> dict[str, bool]:
         s = self.settings
+        gemini_ready = bool(s.get_gemini_api_keys() if hasattr(s, "get_gemini_api_keys") else s.gemini_api_key)
         return {
-            "gemini": bool(s.gemini_api_key),
+            "gemini": gemini_ready,
             "supabase": bool(s.supabase_url and s.supabase_service_role_key),
             "telegram": bool(s.telegram_bot_token),
             "telegram_channel": bool(s.telegram_channel_id),

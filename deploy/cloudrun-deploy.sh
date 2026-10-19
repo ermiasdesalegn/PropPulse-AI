@@ -10,6 +10,11 @@ SERVICE="${SERVICE:-proppulse-api}"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 ENV_FILE="${ENV_FILE:-$ROOT/backend/.env}"
 
+# Ensure keys.csv is available in backend/ for container build
+if [ -f "$ROOT/keys.csv" ]; then
+  cp -f "$ROOT/keys.csv" "$ROOT/backend/keys.csv"
+fi
+
 gcloud config set project "$PROJECT_ID" >/dev/null
 gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com cloudscheduler.googleapis.com calendar-json.googleapis.com
 

@@ -16,6 +16,8 @@ class Settings(BaseSettings):
 
     # Gemini
     gemini_api_key: str = ""
+    gemini_api_keys: str = ""
+    gemini_keys_file: str = "keys.csv"
     gemini_model: str = "gemini-3.8-flash"
 
     # Supabase
@@ -55,6 +57,37 @@ class Settings(BaseSettings):
     @property
     def working_weekdays(self) -> set[int]:
         return {int(d) for d in self.working_days.split(",") if d.strip()}
+
+    def get_gemini_api_keys(self) -> list[str]:
+        from pathlib import Path
+        from app.services.gemini import load_keys_from_file
+
+        keys: list[str] = []
+        # 1. Prioritize CSV / keys file
+        if self.gemini_keys_file:
+            candidate_paths = [
+                Path(self.gemini_keys_file),
+                Path(__file__).resolve().parent.parent / self.gemini_keys_file,
+                Path(__file__).resolve().parent.parent.parent / self.gemini_keys_file,
+            ]
+            for candidate in candidate_paths:
+                if candidate.is_file():
+                    for k in load_keys_from_file(candidate):
+                        if k not in keys:
+                            keys.append(k)
+                    if keys:
+                        break
+
+        # 2. Fall back to environment variables only if no keys loaded from file
+        if not keys:
+            if self.gemini_api_keys:
+                keys.extend([k.strip() for k in self.gemini_api_keys.split(",") if k.strip()])
+            if self.gemini_api_key and self.gemini_api_key.strip():
+                k = self.gemini_api_key.strip()
+                if k not in keys:
+                    keys.append(k)
+
+        return keys
 
 
 @lru_cache
